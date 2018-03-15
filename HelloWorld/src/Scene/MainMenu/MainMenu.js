@@ -7,10 +7,14 @@ var MainMenuScene = cc.Scene.extend({
         this._super();
         // 加载背景图
         this.loadBackgroundLayer();
-        
+        this.loadMainMenu();
     },
     loadBackgroundLayer: function () {
         this.backgroundLayer = new MMBackgroundLayer();
         this.addChild(this.backgroundLayer);
+    },
+    loadMainMenu : function () {
+        this.loadMainMENU = new MMMainLayer();
+        this.addChild(this.loadMainMENU);
     }
 });
