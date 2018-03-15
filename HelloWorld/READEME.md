@@ -5,6 +5,17 @@
 2. 熟悉hello world 
 3. 保卫萝卜2主页面设计
 
+
+### 启动命令
+```
+  1 // 运行在指定的平台上
+  2  cocos run -p web|ios|android|mac|win32
+  3  // 将项目工程打包到指定的平台上
+  4  cocos compile -p web|ios|android|mac|win32 -m release
+```
+ 
+
+
 ### 基本概念
 
 #### 导演(Director)

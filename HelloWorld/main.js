@@ -22,8 +22,8 @@ cc.game.onStart = function(){
     // Uncomment the following line to set a fixed orientation for your game
     // cc.view.setOrientation(cc.ORIENTATION_PORTRAIT);
 
-    // 设置 view的视图大小为960 640
-    cc.view.setDesignResolutionSize(960, 640, cc.ResolutionPolicy.SHOW_ALL);
+    // 用来设置游戏设计分辨率的尺寸以及适配策略
+    cc.view.setDesignResolutionSize(1136, 640, cc.ResolutionPolicy.SHOW_ALL);
 
     // The game will be resized when browser size change
     cc.view.resizeWithBrowserSize(true);
@@ -31,7 +31,7 @@ cc.game.onStart = function(){
     // 加载资源
     cc.LoaderScene.preload(g_resources, function () {
         // 运行场景
-        cc.director.runScene(new HelloWorldScene());
+        cc.director.runScene(new MainMenuScene());
     }, this);
 };
 
