@@ -1,17 +1,32 @@
 //用户交互层
 var MMMainLayer = cc.Layer.extend({
+    _size:cc.winSize,
+    actionDuration:1,
     ctor : function () {
         this._super();
         // 加载["开始冒险" 和 "天天向上" 菜单]
         this.loadMenu();
         // 加载[“设置”按钮]
+        this.loadSet();
         // 加载[“帮助”按钮]
+        this.loadHelpHandle();
+        this.loadHelp();
+        this.loadHelpQuery();
         // 加载底部的1号和3号[怪物]
+        this.loadMonsterThree();
+        this.loadMonsterOne();
+        // 加载2号怪物
+        this.loadMonsterTwo();
         // 加载底部遮挡在1号、5号以及6号怪物之前的[云朵]
+        this.loadCloud();
         // 加载前面的5号[怪物]
+        this.loadMonsterFive();
         // 加载前面遮罩在5号怪物身上的[云朵]
+        this.loadFiveCloud();
         // 加载[萝卜]
+        this.loadCarrot();
         // 加载[前景]
+        this.loadForeground();
     } ,
     loadMenu : function () {
         // 开始冒险
@@ -48,5 +63,129 @@ var MMMainLayer = cc.Layer.extend({
         var menu = new cc.Menu(start , floor);
         this.addChild(menu);
         menu.setPosition(0,0);
+    },
+    loadSet:function () {
+        var setBody = this.loadCommon(res.mm_front_monster_4_png,this._size.width/2-360,this._size.height/2+180);
+        setBody.runAction(this.moveFive());
+        var setNormal = new cc.Sprite(res.mm_front_btn_setting_normal_png);
+        var setPress = new cc.Sprite(res.mm_front_btn_setting_pressed_png);
+        var setDisabled = new cc.Sprite(res.mm_front_btn_setting_normal_png);
+        var set = new cc.MenuItemSprite(
+            setNormal,
+            setPress,
+            setDisabled,
+            function () {
+                cc.log("点击设置");
+            }.bind(this)
+        );
+        set.setPosition(this._size.width/2-327,this._size.height/2+135);
+
+        set.runAction(this.moveFive());
+
+
+        var menu = new cc.Menu(set);
+        this.addChild(menu);
+        menu.setPosition(0,0);
+    },
+    loadHelp : function () {
+        var helpBody = new cc.Sprite(res.mm_front_monster_6_png);
+        this.addChild(helpBody);
+        helpBody.setPosition(this._size.width/2+400,290);
+        //用时2秒，节点相对当前坐标，Y轴向上移动5
+        var helpBodyAction = this.moveFive();
+        helpBody.runAction(helpBodyAction);
+    },
+    loadHelpHandle:function () {
+        var helpHandle = this.loadCommon(res.mm_front_monster_6_hand_png,this._size.width/2+270,280);
+        var helpBodyAction = this.moveFive();
+        helpHandle.runAction(helpBodyAction);
+    },
+    loadHelpQuery:function () {
+        var queryNormal = new cc.Sprite(res.mm_front_btn_help_normal_png);
+        var queryPress = new cc.Sprite(res.mm_front_btn_help_pressed_png);
+        var queryDisabled = new cc.Sprite(res.mm_front_btn_help_normal_png);
+        var query = new cc.MenuItemSprite(
+            queryNormal,
+            queryPress,
+            queryDisabled,
+            function () {
+                cc.log("点击“疑问");
+            }.bind(this)
+        );
+        query.setPosition(this._size.width/2+275 , this._size.height/2+115);
+        var queryAction = this.moveFive();
+        query.runAction(queryAction);
+
+        var menu = new cc.Menu(query);
+        this.addChild(menu);
+        menu.setPosition(0,0);
+    },
+    loadMonsterTwo:function () {
+        var monsterTwo = new cc.Sprite(res.mm_front_monster_2_png);
+        var self = this;
+        this.addChild(monsterTwo);
+        monsterTwo.setPosition(this._size.width/2-205,160);
+        var action0 = cc.moveTo(this.actionDuration * 2,cc.p(this._size.width/2-220,170));
+        // 运行完动作一，回调中运行动作二
+        var action1 = cc.sequence(action0,cc.callFunc(function () {
+            var blueMoveBy1 = cc.moveBy(self.actionDuration * 0.55 , cc.p(0,-5));
+            var blueMoveBy2 = cc.moveBy(self.actionDuration * 0.55 , cc.p(0,5));
+            var blueSeq = cc.sequence(blueMoveBy1,blueMoveBy2);
+            var blueAction = blueSeq.repeatForever();
+            monsterTwo.runAction(blueAction);
+        }));
+        monsterTwo.runAction(action1);
+    },
+    loadCarrot:function () {
+        var node = this.loadCommon(res.mm_front_carrot_png,this._size.width/2+100,20);
+
+        node.setScale(0.7);
+        node.setPosition(this._size.width/2+320,120);
+        var controlPointsTo = [
+            cc.p(this._size.width/2+400 , 100),
+            cc.p(this._size.width/2+120 , 0),
+            cc.p(this._size.width/2+100 , 20)
+        ];
+        // cc.bezierTo(duration, control);
+        var bezierTo = cc.bezierTo(this.actionDuration * 0.8 , controlPointsTo);
+        // 缩放
+        var scaleTo = cc.scaleTo( this.actionDuration * 0.8 , 1);
+        // cc.Spawn是一个并行动作，即同时并发执行所有被包含在cc.Spawn里面的动作，所以，cc.Spawn里面包含的动作不用像cc.Sequence那样注意顺序
+        var spawn = cc.spawn(bezierTo,scaleTo);
+        node.runAction(spawn);
+
+    },
+    loadForeground:function () {
+        this.loadCommon(res.mm_front_front_png,this._size.width/2,320);
+    },
+    loadMonsterFive:function () {
+        this.loadCommon(res.mm_front_monster_5_png,this._size.width/2+300,184);
+    },
+    loadCloud:function () {
+        this.loadCommon(res.mm_front_smoke_3_png,this._size.width/2+360,194);
+    },
+    loadFiveCloud:function () {
+        this.loadCommon(res.mm_front_smoke_2_png,this._size.width/2+330,150);
+    },
+    loadMonsterOne:function () {
+        this.loadCommon(res.mm_front_monster_1_png,this._size.width/2-300,180);
+    },
+    loadMonsterThree:function () {
+        var m3 = this.loadCommon(res.mm_front_monster_3_png,this._size.width/2-380,210);
+        m3.runAction(this.moveFive());
+
+    },
+    //通用加载简单精灵
+    loadCommon:function (img,px,py) {
+        var node = new cc.Sprite(img);
+        this.addChild(node);
+        node.setPosition(px,py);
+        return node;
+    },
+    moveFive:function () {
+        var helpBodyMoveBy1 = cc.moveBy(this.actionDuration * 2 , cc.p(0,5));
+        var helpBodyMoveBy2 = cc.moveBy(this.actionDuration * 2 , cc.p(0,-5));
+        var helpBodySeq = cc.sequence(helpBodyMoveBy1,helpBodyMoveBy2);
+        return helpBodySeq.repeatForever();
     }
 });

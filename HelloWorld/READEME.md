@@ -1,9 +1,9 @@
 ## Cocos2d-js
 
-学习路径
-1. 了解基础概念(反复熟悉)
-2. 熟悉hello world 
-3. 保卫萝卜2主页面设计
+待完成任务
+- 动作api汇总
+- 阅读完api后把6号怪物的手臂运动给写了
+
 
 
 ### 启动命令
@@ -177,7 +177,33 @@ var node = new cc.Sprite(textrue);
 
 
 
+#### cc.Action
+> 每个节点都可以通过runAction(action)函数运行一个或多个动作
+它的构造函数
+```
+1  cc.Action = cc.Class.extend({
+2      originalTarget:null,
+3      target:null,
+4      tag:cc.ACTION_TAG_INVALID,
+5      ctor:function () {
+6          this.originalTarget = null;
+7          this.target = null;
+8          this.tag = cc.ACTION_TAG_INVALID;
+9      }
+10     //......
+11 });
+```
 
+
+
+
+
+
+#### 瞬时动作
+
+#### 持续动作
+
+#### 变速动作
 
 
 
