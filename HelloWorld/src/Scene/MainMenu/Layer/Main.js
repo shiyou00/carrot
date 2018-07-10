@@ -9,9 +9,7 @@ var MMMainLayer = cc.Layer.extend({
         // 加载[“设置”按钮]
         this.loadSet();
         // 加载[“帮助”按钮]
-        this.loadHelpHandle();
         this.loadHelp();
-        this.loadHelpQuery();
         // 加载底部的1号和3号[怪物]
         this.loadMonsterThree();
         this.loadMonsterOne();
@@ -88,19 +86,19 @@ var MMMainLayer = cc.Layer.extend({
         menu.setPosition(0,0);
     },
     loadHelp : function () {
-        var helpBody = new cc.Sprite(res.mm_front_monster_6_png);
-        this.addChild(helpBody);
-        helpBody.setPosition(this._size.width/2+400,290);
-        //用时2秒，节点相对当前坐标，Y轴向上移动5
-        var helpBodyAction = this.moveFive();
-        helpBody.runAction(helpBodyAction);
-    },
-    loadHelpHandle:function () {
-        var helpHandle = this.loadCommon(res.mm_front_monster_6_hand_png,this._size.width/2+270,280);
-        var helpBodyAction = this.moveFive();
-        helpHandle.runAction(helpBodyAction);
-    },
-    loadHelpQuery:function () {
+
+        var helpBg = new cc.Sprite("res/MainMenu/front_monster_6_hand.png");
+        this.addChild(helpBg);
+        helpBg.setPosition(cc.winSize.width / 2 + 270, 270);
+
+        // 左右摆动
+        var rotateBy1 = cc.rotateBy(this.actionDuration * 0.8, -5);
+        var rotateBy2 = cc.rotateBy(this.actionDuration * 0.8, 5);
+        var seq = cc.sequence(rotateBy1, rotateBy2);
+        var action = seq.repeatForever();
+        helpBg.runAction(action);
+
+
         var queryNormal = new cc.Sprite(res.mm_front_btn_help_normal_png);
         var queryPress = new cc.Sprite(res.mm_front_btn_help_pressed_png);
         var queryDisabled = new cc.Sprite(res.mm_front_btn_help_normal_png);
@@ -112,13 +110,26 @@ var MMMainLayer = cc.Layer.extend({
                 cc.log("点击“疑问");
             }.bind(this)
         );
-        query.setPosition(this._size.width/2+275 , this._size.height/2+115);
-        var queryAction = this.moveFive();
-        query.runAction(queryAction);
+        query.setPosition(155, 365);
 
         var menu = new cc.Menu(query);
-        this.addChild(menu);
+        helpBg.addChild(menu);
         menu.setPosition(0,0);
+
+
+
+        var helpBody = new cc.Sprite("res/MainMenu/front_monster_6.png");
+        this.addChild(helpBody);
+        helpBody.setPosition(cc.winSize.width / 2 + 400, 280);
+
+        // 上下移动
+        var helpBodyMoveBy1 = cc.moveBy(this.actionDuration * 2, cc.p(0, 5));
+        var helpBodyMoveBy2 = cc.moveBy(this.actionDuration * 2, cc.p(0, -5));
+        var helpBodySeq = cc.sequence(helpBodyMoveBy1, helpBodyMoveBy2);
+        var helpBodyAction = helpBodySeq.repeatForever();
+        helpBody.runAction(helpBodyAction);
+
+
     },
     loadMonsterTwo:function () {
         var monsterTwo = new cc.Sprite(res.mm_front_monster_2_png);

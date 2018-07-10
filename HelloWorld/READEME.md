@@ -13,7 +13,7 @@
   3  // 将项目工程打包到指定的平台上
   4  cocos compile -p web|ios|android|mac|win32 -m release
 ```
- 
+
 
 
 ### 基本概念
@@ -196,15 +196,217 @@ var node = new cc.Sprite(textrue);
 
 
 
-
-
-
 #### 瞬时动作
+
+> 在一帧内执行结束的动作称为瞬时动作。cc.ActionInstant是所有瞬时动作类的父类，例如cc.Place、cc.Hide、cc.RemoveSelf等都是瞬时动作。
+
+1. cc.place();的作用是将节点放置到某个指定位置，实际上它只是修改了节点的position坐标。
+```
+var place = cc.place(100,86);
+node.runAction(place);
+```
+2. cc.FlipX和cc.FlipY
+> cc.FlipX是将目标水平翻转，cc.FlipY则是将目标垂直翻转，true和false表示是否翻转
+
+```
+var flipX = cc.flipX(true);
+var flipY = cc.flipY(false);
+```
+3. cc.Show和cc.Hide
+> 几乎所有即时动作的实现都是直接修改其对应的属性，cc.Show和cc.Hide也不例外。cc.Show和cc.Hide通过修改节点的visible属性来达到显示和隐藏的功能。
+```
+var show = cc.show();//创建一个[显示]动作
+var hide = cc.hide();//创建一个[隐藏]动作
+```
+4. cc.ToggleVisibility
+> cc.ToggleVisibility动作可以切换节点的课时(Visible)属性，当节点可见时，运动此动作，则会隐藏
+```
+var toggleVisibility = cc.toggleVisibility();
+```
+5. cc.RemoveSelf
+> 就是将正在运行此动作的节点从父节点移除，它实际上市调用了target(正在运行此动作的节点)的removeFromParent(isNeedCleanUp)函数
+
+```
+var moveSelf = cc.removeSelf();//等同于 cc.removeSelf(true)，目标节点以及它所关联的动作、调度器都将被移除
+var mvoeSelf = cc.removeSelf(false);//只移除目标节点
+```
+6、cc.CallFun
+> 运动回调函数
+
+```
+var moveTo = cc.moveTo(2,cc.p(100,200));
+var callback = cc.callFunc(function(){
+    cc.log("我已到达指定地点");
+}).bind(this);
+node.runAction(cc.sequence(moveTo,callback));
+```
+
 
 #### 持续动作
 
+> 需要持续一定时间才能完成的动作称为持续动作，例如花2秒的时间让精灵移动到屏幕坐标(300, 200)的位置。由于持续动作需要持续一段时间才能完成，所以所有的持续动作都需要接收一个用于控制动作执行时间的参数duration。
+大部分的持续动作可以分为两种——xxTo和xxBy，前者表示最终值，而后者表示相对改变值。
+
+
+1. cc.moveTo,cc.moveBy 直线运动
+```
+其中，参数duration为持续时间，position可以为cc.p(x,y)类型的值，也可以为坐标的x值。当position为cc.p(x, y)时，y可以省略。
+1  cc.moveTo(duration, position, y);
+2  cc.moveBy(duration, position, y);
+
+var moveTo = cc.moveTo(1,cc.p(-20,50));
+var moveBy = cc.moveBy(1,cc.p(-20,50));
+```
+
+2. cc.JumpTo和cc.JumpBy
+> Jump 动作以一定的轨迹让节点跳跃到指定的位置
+
+```
+cc.jumoTo(duration, position,y,height,jumps);
+形参中也有position，这意味着若传入进去的参数为cc.p(x, y)类型的参数，则y同样可以省略。height为跳跃高度，jumps为跳跃的次数。示例如下：
+
+var jumpTo = cc.jumpTo(1, cc.p(100,86) , 50 , 4);
+
+```
+
+3. cc.BezierTo 和 cc.BezierBy
+> Bezier动作可以让节点做曲线运动，而曲线则由贝塞尔曲线描述。贝塞尔曲线又称贝兹曲线或贝济埃曲线，是应用于二维图形应用程序的数学曲线。
+
+```
+1  var size = cc.winSize;
+2  // 【举例】：
+3  // 条件：当前节点坐标为cc.p(0, 0)
+4  // 要求：用1秒时间做贝塞尔曲线运动，将节点从当前位置移动到屏幕右下角
+5  var bezierToConfig = [
+6      cc.p(0, size.height),            // 起点控制点
+7      cc.p(size.width, size.height),   // 终点控制点
+8      cc.p(size.width, 0)              // 终点
+9  ];
+10 var bezierTo = cc.bezierTo(1, bezierToConfig);
+11
+12 //【举例】：
+13 // 条件：当前节点坐标为cc.p(cc.winSize.width, 0)
+14 // 要求：用1秒时间做相对贝塞尔曲线运动，将X轴往负方向移动到屏幕宽度的一半
+15 var bezierByConfig = [
+16     cc.p(0, size.height),
+17     cc.p(-size.width / 2, size.height),
+18     cc.p(-size.width / 2, 0)
+19 ];
+20 var bezierBy = cc.bezierBy(1, bezierByConfig);
+21 node.runAction(cc.sequence(bezierTo, bezierBy));
+```
+
+4. cc,ScaleTo和cc.ScaleBy
+> Scale动作可以让节点在指定的时间内进行缩放
+
+```
+cc.scaleTo(duration,sx,sy); sx,sy分别表示x轴和Y轴上的缩放。
+//【举例】：用1秒的时间，把图片缩放到【原始】大小的50%
+2  var scaleTo = cc.scaleTo(1, 0.5);
+3  //【举例】：用1秒的时间，把图片缩放到【当前】大小的200%
+4  var scaleBy = cc.scaleBy(1, 2);
+
+node.runAction(cc.sequence(ScaleTo,scaleBy));
+
+```
+
+5. cc,RotateTo 和 cc.RotateBy
+```
+cc.rotateTo(duration,deltaAngleX,deltaAngleY);
+
+var rotate = cc.rotateTo(1,-90,-45);//将X轴旋转到-90度，Y轴旋转到-45度
+```
+
+视觉特效动作：淡入，淡出，闪烁，帧动画
+
+6. cc.FadeIn、cc.FadeOut和cc.FadeTo(实现节点透明度变化)
+
+```
+cc.fadeIn(duration);
+cc.fadeOut(duration);
+cc.fadeTo(duration,opacity);
+```
+7. cc.Blink 闪烁
+```
+cc.blink(duration,blinks);//blinks 闪烁次数
+```
+
+8. cc.Animation 
+> 帧动画效果,使用图片的方式，或者使用plist精灵表单的方式创建
+
+
+9. cc.Sequence 和 cc.Spawn 
+> 符合动作 Sequence--队列 ， Spawn--并行执行
+
+10. cc.Repeat 和 cc.RepeatForever
+
+> cc.Repeat将动作重复执行指定的次数，而cc.RepeatForever则表示将动作无限重复执行
+
+11. cc.DelayTime
+> 为延时动作，类似多线程中的睡眠，在这一段时间中，它什么也不做，只是起到延时作用。
+
+```
+1  //【举例】：延时0.5秒，将节点的X轴坐标左移100像素
+2  var delay = cc.delayTime(0.5);
+3  var moveBy = cc.moveBy(1, cc.p(-100, 0));
+4  var sequence = cc.sequence(delay, moveBy);
+5  node.runAction(sequence);
+```
+
+
 #### 变速动作
 
+1. cc.Speed
+> cc.Speed 为线性变速动作
+```
+1  //【举例】：用时0.5秒，节点旋转-90度，重复4次，速度为原来的5倍
+2  var rotate = cc.rotateBy(0.5, -90);
+3  var repeat = rotate.repeatForever();
+4  var speed = cc.speed(repeat, 5);
+5  node.runAction(speed);
+```
+
+2. cc.ActionEase
+>  使动作发生非线性速度变化,cc.ActionEase动作分为5类：指数缓冲、Sine缓冲、弹性缓冲、跳跃缓冲和回震缓冲。每类又可细分为In、Out和InOut三种，所以cc.ActionEase动作总共为15个。
+
+
+````
+1  //【举例】：用2秒时间，携带弹性缓冲效果，让节点的X轴坐标向左移动300像素
+2  var moveTo = cc.moveBy(2, cc.p(300, 0));
+3  var elasticInMoveTo = moveTo.easing(cc.easeElasticIn());
+4  node.runAction(elasticInMoveTo);
+````
+
+
+------------------------------------------------------------
+
+### 事件
+
+
+
+
+
+### 事件管理器
+
+>顾名思义，事件管理器就是负责管理事件监听器的，它是事件监听器的大总管，管理事件监听器的添加、删除以及分发。cc.EventManager是一个单例类
+
+
+### 添加事件监听器
+
+```
+cc.eventManager.addListener(listener, nodeOrPriority);
+```
+
+
+
+
+### 删除事件监听器
+```
+cc.eventManager.removeListener(listener);
+```
+
+
+### 设置事件监听器的优先级
 
 
 
@@ -223,6 +425,9 @@ var node = new cc.Sprite(textrue);
 
 
 
+
+
+------------------------------------------------------------
 
 ### 工程目录结构
 
